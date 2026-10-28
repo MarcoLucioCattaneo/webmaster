@@ -112,6 +112,12 @@ input[type=text]{font:inherit;font-size:20px;font-weight:900;background:#1d1858;
 .round.off{text-decoration:line-through}
 .pill s{text-decoration:line-through}
 @media (max-width:900px){.pill{max-width:140px;overflow:hidden;text-overflow:ellipsis}}
+.install{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:8px 14px;font-size:14px}
+.shr{width:20px;height:20px;vertical-align:-4px;color:var(--teal)}
+.steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+.steps li{display:flex;gap:12px;align-items:flex-start;font-size:16px;line-height:1.4}
+.steps .n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--glow);color:#2a1600;font-weight:900;display:grid;place-items:center}
+.steps b{color:var(--glow)}
 .how{font-size:13px;color:var(--muted);margin:0;text-align:center}
 .big-num{font-family:var(--display);font-size:46px;color:var(--glow);text-align:center;font-variant-numeric:tabular-nums}
 .center{text-align:center;align-items:center}
@@ -163,6 +169,7 @@ input[type=text]{font:inherit;font-size:20px;font-weight:900;background:#1d1858;
         <p class="err" id="jsErr" hidden></p>
         <noscript><p class="err">This game needs JavaScript. On the iPad go to Settings, then Safari (or Apps, then Safari), then Advanced, and turn JavaScript on.</p></noscript>
         <p class="sub">Swing across the rooftops, stop the runaway robots and grab every star. Pick your suit and your favourite gadget.</p>
+        <button class="ghost install" id="installBtn" hidden><svg class="shr" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Add to Home Screen</button>
       </div>
       <div class="field">
         <h2>Hero name</h2>
@@ -186,6 +193,21 @@ input[type=text]{font:inherit;font-size:20px;font-weight:900;background:#1d1858;
       </div>
       <button class="go" id="startBtn">Swing out!</button>
       <p class="how">Hold SWING to shoot a line and let go to fly. Jump twice for a double jump. Hold JET to fly with your jet pack; it refuels when you land. Land on robots to bonk them. Tap a gadget at the top to switch. Pick a song under Music; pause the game to change it.<br>Keyboard: arrows move · space jumps · Z swings · X fires · C jet pack · 1–4 gadgets</p>
+    </div>
+  </div>
+
+  <!-- Install guide -->
+  <div class="screen" id="install" hidden>
+    <div class="card">
+      <h1 style="font-size:clamp(26px,5vw,40px)">Add to Home Screen</h1>
+      <p class="sub">Put WebMaster on the Home Screen so it opens like an app, full screen and without internet.</p>
+      <ol class="steps">
+        <li><span class="n">1</span><span>Tap the <b>Share</b> button <svg class="shr" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> in Safari. On iPad it is at the top right; on iPhone it is at the bottom. If you can't see it, tap <b>···</b> first.</span></li>
+        <li><span class="n">2</span><span>Scroll down and tap <b>Add to Home Screen</b> <svg class="shr" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>.</span></li>
+        <li><span class="n">3</span><span>Check the name says <b>WebMaster</b>, then tap <b>Add</b>.</span></li>
+        <li><span class="n">4</span><span>Open WebMaster from the new icon once while online. After that it plays offline.</span></li>
+      </ol>
+      <button class="go" id="installDone">Got it</button>
     </div>
   </div>
 
@@ -1939,6 +1961,23 @@ window.onerror=function(msg,src,line){
 
 <script>
 if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){ navigator.serviceWorker.register('sw.js').catch(function(){}); }
+</script>
+<script>
+(function(){
+  var btn=document.getElementById('installBtn'), guide=document.getElementById('install'), menu=document.getElementById('menu'), deferred=null;
+  function mm(q){ try{ return window.matchMedia&&window.matchMedia(q).matches; }catch(e){ return false; } }
+  var installed=window.navigator.standalone||mm('(display-mode: standalone)')||mm('(display-mode: fullscreen)');
+  var framed=false; try{ framed=window.self!==window.top; }catch(e){ framed=true; }
+  if(installed||framed||location.protocol.indexOf('http')!==0) return;
+  btn.hidden=false;
+  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); deferred=e; });
+  btn.addEventListener('click',function(){
+    if(deferred){ deferred.prompt(); deferred=null; return; }
+    menu.hidden=true; guide.hidden=false;
+  });
+  document.getElementById('installDone').addEventListener('click',function(){ guide.hidden=true; menu.hidden=false; });
+  window.addEventListener('appinstalled',function(){ btn.hidden=true; });
+})();
 </script>
 </body>
 </html>
